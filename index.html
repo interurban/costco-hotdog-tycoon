@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Costco Hotdog Tycoon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e5e7eb; /* Light gray background */
+            color: #1a202c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .game-container {
+            background-color: #f3f4f6; /* Lighter gray for the counter */
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            max-width: 900px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 4px solid #005DAA; /* Costco Blue border */
+        }
+
+        .header {
+            background-color: #E5222E; /* Costco Red */
+            color: #ffffff;
+            padding: 1rem; /* Reduced padding */
+            text-align: center;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+            position: relative;
+        }
+        
+        /* A simple stylized logo */
+        .costco-logo {
+            font-size: 2rem; /* Slightly smaller font */
+            font-weight: 900;
+            color: #ffffff;
+            background-color: #005DAA; /* Costco Blue */
+            padding: 0.25rem 0.75rem; /* Reduced padding */
+            border-radius: 9999px;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes customer-enter {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .customer-card {
+            animation: customer-enter 0.5s ease-out;
+            background: linear-gradient(135deg, #005DAA 0%, #3182ce 100%);
+        }
+        
+        .order-item-list {
+            list-style: none;
+            padding: 0;
+            margin: 0.5rem 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .order-item {
+            display: inline-flex;
+            align-items: center;
+            background-color: #d1d5db; /* A slightly darker gray for contrast */
+            border-radius: 9999px;
+            padding: 0.25rem 0.5rem; /* Reduced padding */
+            margin: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .ingredient-icon {
+            font-size: 1.25rem; /* Slightly smaller icon */
+            margin-right: 0.25rem; /* Reduced margin */
+        }
+
+        .button-icon {
+            font-size: 1.1rem; /* Slightly smaller icon */
+            line-height: 1;
+        }
+
+        .btn {
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 0.75rem 1.5rem; /* Reduced padding */
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        
+        .hotdog-emoji {
+            font-size: 2rem; /* Slightly smaller font */
+        }
+        
+        #game-message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.85);
+            color: #ffffff;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: none;
+            z-index: 100;
+        }
+
+        .hotdog-station {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0.75rem; /* Reduced padding */
+            border-radius: 1rem;
+            background-color: #e5e7eb;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+
+        .hotdog-station h3 {
+            font-weight: 700;
+            font-size: 1.15rem; /* Slightly smaller font */
+            margin-bottom: 0.25rem; /* Reduced margin */
+            color: #2d3748;
+        }
+
+        .hotdog-station .ingredients-list {
+            display: flex;
+            gap: 0.25rem; /* Reduced gap */
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .instructions-card {
+            background-color: #f9fafb;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .instructions-card h3 {
+            border-bottom: 2px solid #E5222E;
+            padding-bottom: 0.5rem;
+            color: #E5222E;
+        }
+
+        .instructions-card ul li {
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .instructions-card ul li::before {
+            content: '•';
+            position: absolute;
+            left: 0.5rem;
+            color: #E5222E;
+        }
+    </style>
+</head>
+<body class="bg-gray-200 flex items-center justify-center p-4">
+
+    <div id="game-message-box"></div>
+
+    <div class="game-container">
+        <header class="header">
+            <h1 class="text-3xl font-extrabold tracking-tight">
+                <span class="costco-logo">COSTCO</span> Hotdog Tycoon
+            </h1>
+            <p class="text-md mt-1 font-light">The food court is waiting!</p>
+        </header>
+
+        <main class="p-4 flex-1 flex flex-col md:flex-row gap-4 h-full">
+            
+            <!-- Game UI -->
+            <div class="flex-1 flex flex-col gap-2">
+                <!-- Status Bar -->
+                <div class="bg-gray-300 rounded-xl p-3 flex justify-around items-center text-center shadow-inner">
+                    <div class="flex flex-col items-center">
+                        <span class="text-sm font-semibold text-gray-600">Money</span>
+                        <span id="money-display" class="text-xl font-bold text-green-700">$0.00</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-sm font-semibold text-gray-600">Orders Served</span>
+                        <span id="orders-served-display" class="text-xl font-bold text-blue-700">0</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-sm font-semibold text-gray-600">Time</span>
+                        <span id="timer-display" class="text-xl font-bold text-red-600">0s</span>
+                    </div>
+                </div>
+
+                <!-- Customer Order & Your Order (combined) -->
+                <div class="flex flex-col md:flex-row gap-2">
+                    <!-- Customer Order -->
+                    <div class="customer-card rounded-xl p-3 text-white text-center shadow-lg flex-1">
+                        <h2 class="text-xl font-extrabold mb-1">Current Order</h2>
+                        <div id="customer-order" class="flex flex-col items-center">
+                            <p class="text-md font-medium">Waiting for a customer...</p>
+                        </div>
+                    </div>
+                    <!-- Your Hotdog -->
+                    <div class="hotdog-station flex-1">
+                        <h3>Your Order</h3>
+                        <div id="my-order" class="hotdog-station-items flex items-center justify-center gap-1 mt-1">
+                            <span class="hotdog-emoji">?</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ingredient Buttons -->
+                <div class="bg-gray-100 rounded-xl p-3 grid grid-cols-2 md:grid-cols-3 gap-2 shadow-md">
+                    <button id="add-hotdog-btn" class="btn bg-red-400 text-red-900 font-bold py-2 px-4 rounded-full flex items-center justify-center gap-1">
+                        <span class="button-icon">🌭</span> Hotdog
+                    </button>
+                    <button id="add-bun-btn" class="btn bg-yellow-400 text-yellow-900 font-bold py-2 px-4 rounded-full flex items-center justify-center gap-1">
+                        <span class="button-icon">🍞</span> Bun
+                    </button>
+                    <button id="add-relish-btn" class="btn bg-green-500 text-green-900 font-bold py-2 px-4 rounded-full flex items-center justify-center gap-1">
+                        <span class="button-icon">🌿</span> Relish
+                    </button>
+                    <button id="add-onion-btn" class="btn bg-purple-500 text-purple-900 font-bold py-2 px-4 rounded-full flex items-center justify-center gap-1">
+                        <span class="button-icon">🧅</span> Onion
+                    </button>
+                    <button id="add-ketchup-btn" class="btn bg-red-500 text-red-900 font-bold py-2 px-4 rounded-full flex items-center justify-center gap-1">
+                        <span class="button-icon">🥫</span> Ketchup
+                    </button>
+                    <button id="add-mustard-btn" class="btn bg-amber-500 text-amber-900 font-bold py-2 px-4 rounded-full flex items-center justify-center gap-1">
+                        <span class="button-icon">🍯</span> Mustard
+                    </button>
+                    <button id="add-sauerkraut-btn" class="btn bg-gray-400 text-gray-900 font-bold py-2 px-4 rounded-full flex items-center justify-center gap-1">
+                        <span class="button-icon">🥗</span> Sauerkraut
+                    </button>
+                    <button id="add-soda-btn" class="btn bg-cyan-700 text-cyan-100 font-bold py-2 px-4 rounded-full flex items-center justify-center gap-1">
+                        <span class="button-icon">🥤</span> Soda
+                    </button>
+                    <button id="add-cookie-btn" class="btn bg-yellow-800 text-yellow-100 font-bold py-2 px-4 rounded-full flex items-center justify-center gap-1">
+                        <span class="button-icon">🍪</span> Cookie
+                    </button>
+                    <button id="add-pizza-btn" class="btn bg-red-800 text-red-100 font-bold py-2 px-4 rounded-full flex items-center justify-center gap-1">
+                        <span class="button-icon">🍕</span> Pizza
+                    </button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-center gap-2 mt-2">
+                    <button id="serve-btn" class="btn bg-[#E5222E] text-white font-bold py-2 px-6 rounded-full hover:bg-red-700">Serve Order!</button>
+                    <button id="reset-btn" class="btn bg-gray-600 text-white font-bold py-2 px-6 rounded-full hover:bg-gray-700">Start Over</button>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="instructions-card md:w-1/3 flex-shrink-0 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">How to Play</h3>
+                    <ul class="space-y-2 text-gray-700">
+                        <li>A customer will appear with a random order.</li>
+                        <li>Click the ingredient buttons to add them to your order.</li>
+                        <li>You must serve the **exact** ingredients in the **correct order**.</li>
+                        <li>Get it right to earn money and serve the next customer!</li>
+                        <li>Use the "Start Over" button if you make a mistake.</li>
+                    </ul>
+                </div>
+                <div class="mt-6 text-center text-gray-500 text-sm">
+                    <p>
+                        Created with love ❤️ by Collaboration Service for all the $1.50 food court enthusiasts out there.
+                    </p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        const ingredients = {
+            'hotdog': { emoji: '🌭', name: 'Hotdog' },
+            'bun': { emoji: '🍞', name: 'Bun' },
+            'relish': { emoji: '🌿', name: 'Relish' },
+            'onion': { emoji: '🧅', name: 'Onion' },
+            'ketchup': { emoji: '🥫', name: 'Ketchup' },
+            'mustard': { emoji: '🍯', name: 'Mustard' },
+            'sauerkraut': { emoji: '🥗', name: 'Sauerkraut' },
+            'soda': { emoji: '🥤', name: 'Soda' },
+            'cookie': { emoji: '🍪', name: 'Cookie' },
+            'pizza': { emoji: '🍕', name: 'Pizza' }
+        };
+
+        const hotdogToppings = ['relish', 'onion', 'ketchup', 'mustard', 'sauerkraut'];
+        const foodCourtItems = ['soda', 'cookie', 'pizza'];
+
+        const customerEmojis = [
+            '👨', '👩', '👴', '👵', '🧑', '👱', '🧓',
+            '👨🏻', '👩🏽', '🧑🏿', '👱🏾', '👨‍🦱', '👩‍🦳', '🧕', '👳‍♂️', '🧒',
+            '🧔', '👩‍🦰', '🧑‍🦳', '👩‍🦱'
+        ];
+        
+        const customerQuotes = [
+            "I came for the samples, but I stayed for the incredible value. Costco is a genuine happy place.",
+            "My love for Costco is directly proportional to the size of my shopping cart.",
+            "I'm not a regular shopper, I'm a Costco member, which is basically a superpower.",
+            "Costco: Where you can get a hot dog, a tire change, and a 5-pound bag of gummy bears all in one trip.",
+            "My financial advisor says to diversify, but I just put all my money into Kirkland Signature.",
+            "You haven't truly experienced joy until you've found a parking spot at noon on a Saturday at Costco.",
+            "Life is better with a $1.50 hot dog and a cookie. It's just a fact.",
+            "My family and I share a bond forged in bulk savings and oversized rotisserie chickens.",
+            "Costco isn't just a store; it's a lifestyle. And my life is very, very organized.",
+            "The real treasure at Costco isn't on the shelves, it's the feeling of buying a lifetime supply of ketchup.",
+            "I don't need a therapist, I have the Costco food court.",
+            "What's my favorite memory? The time I got lost in the paper towel aisle and found my calling.",
+            "If loving Costco is wrong, I don't want to be right.",
+            "I get a bigger adrenaline rush from a new item at Costco than from a roller coaster.",
+            "It's a beautiful day to have a beautiful day... at Costco.",
+            "Costco's hot dog deal is the last bastion of true American economic stability.",
+            "The best love story I know starts with 'Do you want to split a slice of pizza at Costco?'",
+            "I don't just shop; I prepare for the apocalypse, one pallet at a time.",
+            "Some people meditate, I just walk through the frozen food section at Costco.",
+            "My heart belongs to the freezer section, my soul to the food court, and my wallet to the checkout line."
+        ];
+
+        let currentOrder = [];
+        let myOrder = [];
+        let money = 0;
+        let ordersServed = 0;
+        let timerInterval;
+        let timeElapsed = 0;
+        let currentCustomerEmoji = '';
+        let currentQuote = '';
+
+        const moneyDisplay = document.getElementById('money-display');
+        const ordersServedDisplay = document.getElementById('orders-served-display');
+        const timerDisplay = document.getElementById('timer-display');
+        const customerOrderEl = document.getElementById('customer-order');
+        const myOrderEl = document.getElementById('my-order');
+        const serveBtn = document.getElementById('serve-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const messageBox = document.getElementById('game-message-box');
+
+        const ingredientButtons = {
+            'add-hotdog-btn': 'hotdog',
+            'add-bun-btn': 'bun',
+            'add-relish-btn': 'relish',
+            'add-onion-btn': 'onion',
+            'add-ketchup-btn': 'ketchup',
+            'add-mustard-btn': 'mustard',
+            'add-sauerkraut-btn': 'sauerkraut',
+            'add-soda-btn': 'soda',
+            'add-cookie-btn': 'cookie',
+            'add-pizza-btn': 'pizza'
+        };
+
+        function showMessage(message, duration = 2000) {
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, duration);
+        }
+
+        function generateOrder() {
+            // All orders now start with a hotdog and bun
+            const newOrder = ['hotdog', 'bun'];
+            
+            // 75% chance of adding toppings, 25% chance of no toppings
+            if (Math.random() < 0.75) {
+                // Add between 1-2 hotdog toppings
+                const numToppings = Math.floor(Math.random() * 2) + 1;
+                const availableHotdogToppings = [...hotdogToppings];
+                availableHotdogToppings.sort(() => Math.random() - 0.5);
+                for (let i = 0; i < numToppings; i++) {
+                    newOrder.push(availableHotdogToppings.pop());
+                }
+            }
+            
+            // 50% chance of adding a food court item, 50% chance of not
+            if (Math.random() < 0.5) {
+                const randomItem = foodCourtItems[Math.floor(Math.random() * foodCourtItems.length)];
+                newOrder.push(randomItem);
+            }
+
+            return newOrder;
+        }
+
+        function renderOrder(order) {
+            const orderListHtml = order.map(item => `
+                <li class="order-item">
+                    <span class="ingredient-icon">${ingredients[item].emoji}</span>
+                    <span>${ingredients[item].name}</span>
+                </li>
+            `).join('');
+
+            customerOrderEl.innerHTML = `
+                <div class="flex items-center justify-center gap-2">
+                    <p class="text-2xl">${currentCustomerEmoji}</p>
+                    <p class="text-sm italic text-white/80 max-w-xs">"${currentQuote}"</p>
+                </div>
+                <ul class="order-item-list">
+                    ${orderListHtml}
+                </ul>
+            `;
+        }
+
+        function renderMyOrder() {
+            myOrderEl.innerHTML = myOrder.map(item => `<span class="hotdog-emoji">${ingredients[item].emoji}</span>`).join('');
+        }
+
+        function checkOrder() {
+            if (myOrder.length !== currentOrder.length) {
+                return false;
+            }
+            for (let i = 0; i < myOrder.length; i++) {
+                if (myOrder[i] !== currentOrder[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function startNewOrder() {
+            currentOrder = generateOrder();
+            myOrder = [];
+            currentCustomerEmoji = customerEmojis[Math.floor(Math.random() * customerEmojis.length)];
+            currentQuote = customerQuotes[Math.floor(Math.random() * customerQuotes.length)];
+            renderOrder(currentOrder);
+            renderMyOrder();
+        }
+
+        function startGame() {
+            money = 0;
+            ordersServed = 0;
+            timeElapsed = 0;
+            moneyDisplay.textContent = `$${money.toFixed(2)}`;
+            ordersServedDisplay.textContent = ordersServed;
+            
+            // Start the timer
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                timerDisplay.textContent = `${timeElapsed}s`;
+            }, 1000);
+
+            startNewOrder();
+        }
+
+        // Event listeners for ingredient buttons
+        Object.entries(ingredientButtons).forEach(([id, ingredient]) => {
+            document.getElementById(id).addEventListener('click', () => {
+                // If a hotdog or bun is clicked, always add it
+                if (ingredient === 'hotdog' || ingredient === 'bun') {
+                    myOrder.push(ingredient);
+                }
+                // If the user tries to add a topping or a food court item
+                else if (myOrder.includes('hotdog') && myOrder.includes('bun')) {
+                    // Check if it's a food court item
+                    if (foodCourtItems.includes(ingredient)) {
+                        // Check if a food court item has already been added
+                        if (myOrder.some(item => foodCourtItems.includes(item))) {
+                            showMessage('You can only have one food court item per order!', 2000);
+                        } else {
+                            myOrder.push(ingredient);
+                        }
+                    }
+                    // It's a regular hotdog topping
+                    else if (hotdogToppings.includes(ingredient)) {
+                         myOrder.push(ingredient);
+                    }
+                } else {
+                    showMessage('Start with the hotdog and bun first!', 2000);
+                }
+                renderMyOrder();
+            });
+        });
+
+        // Event listener for the Serve button
+        serveBtn.addEventListener('click', () => {
+            if (myOrder.length > 0) {
+                if (checkOrder()) {
+                    money += 1.50; // The famous $1.50
+                    ordersServed++;
+                    moneyDisplay.textContent = `$${money.toFixed(2)}`;
+                    ordersServedDisplay.textContent = ordersServed;
+                    showMessage('Perfect! You earned $1.50!', 2000);
+                    startNewOrder();
+                } else {
+                    showMessage('Wrong order! Try again.', 2000);
+                    startNewOrder();
+                }
+            } else {
+                showMessage('You need to add an item first!', 2000);
+            }
+        });
+
+        // Event listener for the Reset button
+        resetBtn.addEventListener('click', () => {
+            startNewOrder();
+        });
+
+        // Start the game on page load
+        window.onload = startGame;
+
+    </script>
+</body>
+</html>
