@@ -2,6 +2,10 @@
 
 A fun, interactive web game where you play as a Costco food court employee serving up the famous $1.50 hotdogs! Built with vanilla JavaScript and styled with Tailwind CSS.
 
+[![Play Now](https://img.shields.io/badge/PLAY%20NOW-%F0%9F%8D%BD%20Costco%20Hotdog%20Tycoon-brightgreen?style=for-the-badge)](https://interurban.github.io/costco-hotdog-tycoon/)
+
+**Play the game**: [Open index.html in your browser]
+
 ## 🎮 How to Play
 
 1. **Customer Orders**: Customers will appear with random orders for hotdogs and food court items
@@ -78,9 +82,5 @@ This project is open source and available under the [MIT License](LICENSE).
 - Special thanks to the Costco community for the endless entertainment
 
 ---
-
-[![Play Now](https://img.shields.io/badge/PLAY%20NOW-%F0%9F%8D%BD%20Costco%20Hotdog%20Tycoon-brightgreen?style=for-the-badge)](https://interurban.github.io/costco-hotdog-tycoon/)
-
-**Play the game**: [Open index.html in your browser]
 
 *"Life is better with a $1.50 hot dog and a cookie. It's just a fact."* 🍪
