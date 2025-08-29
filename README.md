@@ -79,6 +79,8 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
+[![Play Now](https://img.shields.io/badge/PLAY%20NOW-%F0%9F%8D%BD%20Costco%20Hotdog%20Tycoon-brightgreen?style=for-the-badge)](https://interurban.github.io/costco-hotdog-tycoon/)
+
 **Play the game**: [Open index.html in your browser]
 
 *"Life is better with a $1.50 hot dog and a cookie. It's just a fact."* 🍪
